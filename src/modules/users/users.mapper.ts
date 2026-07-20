@@ -1,4 +1,4 @@
-import type { UserEntity } from "./user.entity.ts";
+import type { PublicUserEntity } from "./user.entity.ts";
 import type { UserResponseDto } from "./users.dto.ts";
 
 /**
@@ -8,7 +8,7 @@ import type { UserResponseDto } from "./users.dto.ts";
  * @param entity: UserEntity 
  * @returns UserResponseDto
  */
-export function userMapperDto(entity: UserEntity): UserResponseDto {
+export function userMapperDto(entity: PublicUserEntity): UserResponseDto {
     return {
         id: entity.id,
         email: entity.email,

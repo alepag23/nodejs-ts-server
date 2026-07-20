@@ -2,7 +2,7 @@
 export interface UserEntity {
     id: number;
     email: string;
-    password_hashed: string;
+    password_hash: string;
     created_at: Date;
 }
 

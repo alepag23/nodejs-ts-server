@@ -1,7 +1,6 @@
 import { pool } from "../../db/db.ts";
 import { ConflictError } from "../../shared/errors/errors.ts";
 import type { PublicUserEntity, UserEntity } from "./user.entity.ts";
-import type { CreateUserDto } from "./users.dto.ts";
 
 
 export async function findById(id: number): Promise<PublicUserEntity | null> {
@@ -11,10 +10,18 @@ export async function findById(id: number): Promise<PublicUserEntity | null> {
     );
     return result.rows[0] ?? null;
 }
+// TODO: check type CheckEmailUserEntity
+export async function emailExists(email: string): Promise<boolean> {
+    const result = await pool.query<{ exists: boolean }>(
+        'SELECT EXISTS(SELECT 1 FROM users WHERE email = $1) AS exists',
+        [email],
+    );
+    return result.rows[0].exists;
+}
 
-export async function findByEmail(email: string): Promise<PublicUserEntity | null> {
-    const result = await pool.query<PublicUserEntity>(
-        'SELECT email FROM users WHERE email = $1',
+export async function findByEmailWithHash(email: string): Promise<UserEntity | null> {
+    const result = await pool.query<UserEntity>(
+        'SELECT id, email, password_hash, created_at FROM users WHERE email = $1',
         [email],
     );
     return result.rows[0] ?? null;
