@@ -26,5 +26,20 @@ pnpm install
 
 ```
 src/
-  app.ts    # application entry point
+  db/
+    db.ts
+  modules/
+    users/
+      users.entity.ts
+      users.controllers.ts
+      users.dto.ts
+      users.mapper.ts
+      users.repository.ts
+      users.router.ts
+      users.service.ts
+  shared/
+    errors/
+      errors.ts
+  app.ts
+  server.ts
 ```
