@@ -1,4 +1,4 @@
-import type { LoginDto } from "./auth.dto.ts";
+import type { LoginDto, RegisterDto } from "./auth.dto.ts";
 import { findByEmailWithHash } from "../users/index.ts";
 import { UnauthorizedError, ValidationError } from "../../shared/errors/errors.ts";
 import bcrypt from "bcrypt";
@@ -28,3 +28,28 @@ export async function login(dto: LoginDto): Promise<{ token: string }> {
 
     return { token };
 }
+
+// export async function register(dto:RegisterDto): Promise<{token: string}> {
+    
+// }
+
+
+// async function generateToken(dto:LoginDto | RegisterDto, user: string): Promise<{token: string}> {
+//     // 2. Recover user with hash
+//     const user = await findByEmailWithHash(dto.email);
+//     if (!user) {
+//         throw new UnauthorizedError('Invalid credentials');
+//     }
+//     // 3. Check password
+//     const passwordMatch = await bcrypt.compare(dto.password, user.password_hash);
+//     if (!passwordMatch) {
+//         throw new UnauthorizedError('Invalid credentials');
+//     }
+//     // 4. Create token
+//     const token = jwt.sign(
+//         { userId: user.id },
+//         process.env.JWT_SECRET as string,
+//         { expiresIn: '1h' },
+//     );
+//     return {token};
+// }
