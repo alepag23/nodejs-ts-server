@@ -2,8 +2,33 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as userService from './users.service.ts';
 import * as repository from './users.repository.ts';
 
-
 vi.mock('./users.repository.ts');
+
+describe('getUserById', () => {
+    beforeEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it('throw ValidationError if id is not a positive integer', async () => {
+        await expect(userService.getUserById(0)).rejects.toThrow('id must be a positive integer');
+    });
+
+    it('throw NotFoundError if user not exists', async () => {
+        vi.mocked(repository.findById).mockResolvedValue(null);
+        await expect(userService.getUserById(1)).rejects.toThrow('User not found');
+    });
+
+    it('User exists and return userMapperDto', async () => {
+        vi.mocked(repository.findById).mockResolvedValue({
+            id: 1,
+            email: 'prova@prova.com',
+            created_at: new Date('2026-01-01T00:00:00Z'),
+        });
+
+        expect(userService.getUserById(1));
+    });
+});
+
 describe('createUser', () => {
     beforeEach(() => {
         vi.clearAllMocks();
