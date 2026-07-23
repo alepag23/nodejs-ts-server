@@ -1,8 +1,8 @@
 import { Router } from "express";
 import { createUser, getUser } from "./users.controller.ts";
-import { authenticate } from "../auth/index.ts";
+import { authenticateToken } from "../auth/index.ts";
 
 export const usersRouter: Router = Router();
 
-usersRouter.get('/:id', authenticate, getUser);
-usersRouter.post('/new', createUser);
+usersRouter.get('/:id', authenticateToken, getUser);
+usersRouter.post('/new', authenticateToken, createUser);
