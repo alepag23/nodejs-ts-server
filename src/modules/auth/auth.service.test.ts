@@ -44,7 +44,7 @@ describe('login', () => {
         ).rejects.toThrow('Invalid credentials');
     });
 
-    it('lancia UnauthorizedError if password invalid', async () => {
+    it('throw UnauthorizedError if password invalid', async () => {
         vi.mocked(usersModule.findByEmailWithHash).mockResolvedValue(fakeUser);
         vi.mocked(bcrypt.compare).mockResolvedValue(false as never);
 
