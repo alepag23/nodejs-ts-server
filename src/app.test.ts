@@ -59,7 +59,7 @@ describe('API end-to-end', () => {
         process.env.JWT_SECRET = 'test-secret';
     });
 
-    it('crea un utente con POST /users/new', async () => {
+    it('create user with POST /users/new', async () => {
         const res = await request(app)
             .post('/users/new')
             .send({ email: 'ada@example.com', password: 'supersecret' });
@@ -93,13 +93,13 @@ describe('API end-to-end', () => {
             .send({ email: 'ada@example.com', password: 'supersecret' });
 
         expect(loginRes.status).toBe(200);
-        const token = loginRes.body.token;
-        expect(token).toBeTruthy();
+        const cookie = loginRes.headers['set-cookie'];
+        expect(cookie).toBeTruthy();
 
-        // 3. use token on the protect route
+        // 3. use cookie on the protect route
         const protectedRes = await request(app)
             .get('/users/1')
-            .set('Authorization', `Bearer ${token}`);
+            .set('Cookie', cookie);
 
         expect(protectedRes.status).toBe(200);
         expect(protectedRes.body.email).toBe('ada@example.com');

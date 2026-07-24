@@ -6,13 +6,14 @@ import cors from "cors";
 
 export function createApp(): Express {
     const app: Express = express();
+
+    app.use(cors({
+        origin: process.env.FRONTEND_URL || 'http://localhost:4200', // url app frontend
+        credentials: true,
+    }));
     // parse JSON req bodies
     app.use(express.json());
     app.use(cookieParser());
-    app.use(cors({
-        origin: 'http://localhost:4200', // url app frontend
-        credentials: true,
-    }));
     // Mount each module's router under its base path.
     app.use('/users', usersRouter);
     app.use('/auth', authRouter);

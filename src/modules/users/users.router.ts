@@ -5,4 +5,4 @@ import { authenticateToken } from "../auth/index.ts";
 export const usersRouter: Router = Router();
 
 usersRouter.get('/:id', authenticateToken, getUser);
-usersRouter.post('/new', authenticateToken, createUser);
+usersRouter.post('/new', createUser);
