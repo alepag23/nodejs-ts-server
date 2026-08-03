@@ -3,6 +3,7 @@ import { usersRouter } from "./modules/users/index.ts";
 import { authRouter } from "./modules/auth/index.ts";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { globalErrorHandler } from "./middlewares/global-errors.middleware.ts";
 
 export function createApp(): Express {
     const app: Express = express();
@@ -17,6 +18,7 @@ export function createApp(): Express {
     // Mount each module's router under its base path.
     app.use('/users', usersRouter);
     app.use('/auth', authRouter);
+    app.use(globalErrorHandler);
 
     return app;
 }

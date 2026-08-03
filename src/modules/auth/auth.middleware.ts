@@ -13,6 +13,7 @@ export function authenticateToken(req: Request, res: Response, next: NextFunctio
         jwt.verify(token, process.env.JWT_SECRET as string);
         next();
     } catch (error) {
+        res.clearCookie('token');
         if (error instanceof UnauthorizedError) {
             next(error)
         } else {
