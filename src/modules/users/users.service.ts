@@ -16,23 +16,3 @@ export async function getUserById(id: number): Promise<UserResponseDto> {
 
     return userMapperDto(entity);
 }
-
-export async function createUser(dto: CreateUserDto): Promise<UserResponseDto> {
-    if (!dto?.email || !dto.email.includes('@')) {
-        throw new ValidationError('A valid email is required');
-    }
-
-    if (!dto?.password || dto.password.length < 8) {
-        throw new ValidationError('Password must be at least 8 characters');
-    }
-
-    const existing = await repository.emailExists(dto.email);
-    if (existing) {
-        throw new ConflictError('Email is already exist');
-    }
-
-    const passwordHash = await bcrypt.hash(dto.password, 12);
-    const entity = await repository.insert(dto.email, passwordHash);
-
-    return userMapperDto(entity);
-}

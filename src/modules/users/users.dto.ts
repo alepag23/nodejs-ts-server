@@ -1,6 +1,8 @@
 export interface CreateUserDto {
+    name: string;
+    surname: string;
     email: string;
-    password: string; //hashed password before storage
+    passwordHash: string; //hashed password before storage
 }
 
 export interface UserResponseDto {

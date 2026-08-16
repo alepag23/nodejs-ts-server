@@ -1,6 +1,7 @@
 import { pool } from "../../db/db.ts";
 import { ConflictError } from "../../shared/errors/errors.ts";
 import type { PublicUserEntity, UserEntity } from "./user.entity.ts";
+import type { CreateUserDto } from "./users.dto.ts";
 
 
 export async function findById(id: number): Promise<PublicUserEntity | null> {
@@ -27,13 +28,13 @@ export async function findByEmailWithHash(email: string): Promise<UserEntity | n
     return result.rows[0] ?? null;
 }
 
-export async function insert(email: string, passwordHash: string): Promise<PublicUserEntity> {
+export async function insert(data: CreateUserDto): Promise<PublicUserEntity> {
     try {
         const result = await pool.query<PublicUserEntity>(
-            `INSERT INTO users (email, password_hash)
-         VALUES ($1, $2)
+            `INSERT INTO users (name, surname, email, password_hash)
+         VALUES ($1, $2, $3, $4)
          RETURNING id, email, created_at`,
-            [email, passwordHash],
+            [data.name, data.surname, data.email, data.passwordHash],
         );
         return result.rows[0];
     } catch (error) {

@@ -15,13 +15,3 @@ export async function getUser(req: Request, res: Response, next: NextFunction): 
         next(error);
     }
 }
-
-export async function createUser(req: Request, res: Response, next: NextFunction): Promise<void> {
-    try {
-        // add check req.body type
-        const user = await userService.createUser(req.body);
-        res.status(201).json(user);
-    } catch (error) {
-        next(error);
-    }
-}

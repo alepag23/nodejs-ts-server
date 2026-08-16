@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction, CookieOptions } from "express";
 import * as authService from "./auth.service.ts";
+import { createUser } from "./auth.service.ts";
 
 const isProd = process.env.NODE_ENV === 'production';
 const cookieOptions: CookieOptions = {
@@ -33,15 +34,29 @@ export async function checkSession(req: Request, res: Response, next: NextFuncti
         // 1. Extract the token from the cookie automatically sent by the browser
         const token: string = req.cookies?.token as string;
         if (!token) {
-            res.status(401).json({ message: 'Token not found. Authentication required.' });
+            res.status(200).json({ authenticated: false, user: null });
             return;
         }
 
         // 2. The service verifies the JWT and retrieves the user's data from the db
         const user = await authService.checkSession(token);
 
-        res.status(200).send(user);
+        res.status(200).send({ authenticated: true, user: user });
 
+    } catch (error) {
+        res.status(200).send({ authenticated: false, user: null });
+    }
+}
+
+export async function register(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+        // add check req.body type
+        const { token, user } = await authService.createUser(req.body);
+        res.cookie('token', token, {
+            ...cookieOptions,
+            maxAge: TOKEN_MAX_AGE,
+        });
+        res.status(200).json(user);
     } catch (error) {
         next(error);
     }
