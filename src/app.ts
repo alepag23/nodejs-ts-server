@@ -4,6 +4,8 @@ import { authRouter } from "./modules/auth/index.ts";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import { globalErrorHandler } from "./middlewares/global-errors.middleware.ts";
+import swaggerUi from "swagger-ui-express";
+import { swaggerSpec } from "./config/swagger.ts";
 
 export function createApp(): Express {
     const app: Express = express();
@@ -15,6 +17,8 @@ export function createApp(): Express {
     // parse JSON req bodies
     app.use(express.json());
     app.use(cookieParser());
+    // Route swagger
+    app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
     // Mount each module's router under its base path.
     app.use('/users', usersRouter);
     app.use('/auth', authRouter);

@@ -46,12 +46,14 @@ describe('API end-to-end', () => {
             if (sql.includes('INSERT')) {
                 const user = {
                     id: nextId++,
-                    email: params[0],
-                    password_hash: params[1],
+                    name: params[0],
+                    surname: params[1],
+                    email: params[2],
+                    password_hash: params[3],
                     created_at: new Date('2026-01-01T00:00:00Z'),
                 };
                 fakeUsers.push(user);
-                return { rows: [user] };
+                return { rows: [{ id: user.id, email: user.email, created_at: user.created_at }] };
             }
             return { rows: [] };
         });
@@ -59,21 +61,36 @@ describe('API end-to-end', () => {
         process.env.JWT_SECRET = 'test-secret';
     });
 
-    it('create user with POST /users/new', async () => {
+    it('create user with POST /auth/register', async () => {
         const res = await request(app)
-            .post('/users/new')
-            .send({ email: 'ada@example.com', password: 'supersecret' });
+            .post('/auth/register')
+            .send({
+                name: 'Ada',
+                surname: 'Lovelace',
+                email: 'ada@example.com',
+                password: 'supersecret',
+            });
 
-        expect(res.status).toBe(201);
+        expect(res.status).toBe(200);
         expect(res.body.email).toBe('ada@example.com');
-        expect(res.body.password_hash).toBeUndefined();  // dto barrier
+        expect(res.body.password_hash).toBeUndefined();
     });
 
     it('reject duplicate email with 409', async () => {
         // first user: ok
-        await request(app).post('/users/new').send({ email: 'ada@example.com', password: 'supersecret' });
+        await request(app).post('/auth/register').send({
+            name: 'Ada',
+            surname: 'Lovelace',
+            email: 'ada@example.com',
+            password: 'supersecret',
+        });
         // second with same email: conflict
-        const res = await request(app).post('/users/new').send({ email: 'ada@example.com', password: 'supersecret' });
+        const res = await request(app).post('/auth/register').send({
+            name: 'Ada',
+            surname: 'Lovelace',
+            email: 'ada@example.com',
+            password: 'supersecret',
+        });
 
         expect(res.status).toBe(409);
     });
@@ -85,7 +102,12 @@ describe('API end-to-end', () => {
 
     it('allows login and access to the protect route with token', async () => {
         // 1. Register user
-        await request(app).post('/users/new').send({ email: 'ada@example.com', password: 'supersecret' });
+        await request(app).post('/auth/register').send({
+            name: 'Ada',
+            surname: 'Lovelace',
+            email: 'ada@example.com',
+            password: 'supersecret',
+        });
 
         // 2. login and take token
         const loginRes = await request(app)

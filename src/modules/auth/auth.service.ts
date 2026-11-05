@@ -77,7 +77,7 @@ export async function createUser(dto: RegisterDto): Promise<{ token: string, use
     const cleanEmail = dto.email.trim().toLowerCase();
 
     // 6. check if email exists
-    const existing = await emailExists(cleanName);
+    const existing = await emailExists(cleanEmail);
     if (existing) {
         throw new ConflictError('Email already exists');
     }

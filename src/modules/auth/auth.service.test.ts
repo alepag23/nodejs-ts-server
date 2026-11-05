@@ -19,12 +19,21 @@ describe('login', () => {
     const fakeUser = {
         id: 2,
         email: 'test@test.com',
+        name: 'Test',
+        surname: 'User',
         password_hash: '$2b$12$hashfinto',
         created_at: new Date('2026-01-01T00:00:00Z'),
     };
 
-    it('returns a token when the credentials are correct', async () => {
+    it('returns a token and user when the credentials are correct', async () => {
         vi.mocked(usersModule.findByEmailWithHash).mockResolvedValue(fakeUser);
+        vi.mocked(usersModule.findById).mockResolvedValue({
+            id: 2,
+            email: 'test@test.com',
+            name: 'Test',
+            surname: 'User',
+            created_at: new Date('2026-01-01T00:00:00Z'),
+        });
         vi.mocked(bcrypt.compare).mockResolvedValue(true as never);
         vi.mocked(jwt.sign).mockReturnValue('fake-token' as never);
 
@@ -33,7 +42,14 @@ describe('login', () => {
             password: 'supersecret',
         });
 
-        expect(result).toEqual({ token: 'fake-token' });
+        expect(result).toEqual({
+            token: 'fake-token',
+            user: {
+                id: 2,
+                email: 'test@test.com',
+                createdAt: '2026-01-01T00:00:00.000Z',
+            },
+        });
     });
 
     it(' UnauthorizedError if email not exists', async () => {
