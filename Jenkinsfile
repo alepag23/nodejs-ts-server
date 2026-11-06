@@ -1,60 +1,55 @@
-pipeline{
+pipeline {
     agent any
 
-    stages{
-        stage('1. Checkout Code') {
-            steps{
-                // Jenkins clones/downloads the updated code from your repository
-                checkout scm
-            }
+    stages {
+        stage('1. Checkout') {
+            steps { checkout scm }
         }
-        stage('2. Installing Dependencies'){
-            steps{
-                // run pnpm install inside a temporary Node 22 container
-                sh '''
-                    docker run --rm \
-                      -v "$(pwd)":/app \
-                      -w /app \
-                      node:22-alpine \
-                      sh -c "corepack enable && pnpm install --frozen-lockfile"
-                '''
-            }
-        }
-        stage('3. Test Execution and Coverage'){
-           steps{
-                // run the tests inside the isolated Node container.
-                sh '''
-                    docker run --rm \
-                      -v "$(pwd)":/app \
-                      -w /app \
-                      node:22-alpine \
-                      sh -c "corepack enable && pnpm test:cov"
-                '''
-           }
-        }
-        stage('4. SonarQube Analysis') {
+
+        stage('2. Build test image') {
             steps {
-                // Let's securely retrieve the previously saved token
+                // Use the "builder" stage: it also includes the devDependencies (vitest)
+                sh 'docker build --target builder -t backend-test:${BUILD_NUMBER} .'
+            }
+        }
+
+        stage('3. Test e coverage') {
+            steps {
+                sh '''
+                    docker run --name cov-${BUILD_NUMBER} backend-test:${BUILD_NUMBER} pnpm test:cov
+                    status=$?
+                    docker cp cov-${BUILD_NUMBER}:/usr/src/app/coverage ./coverage || true
+                    docker rm cov-${BUILD_NUMBER}
+                    exit $status
+                '''
+            }
+        }
+
+        stage('4. SonarQube') {
+            steps {
                 withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
                     sh '''
                         docker run --rm \
-                          --network host \
-                          -v "$(pwd)":/usr/src \
+                          --network ci-net \
+                          --volumes-from jenkins-local \
+                          -w "$WORKSPACE" \
                           sonarsource/sonar-scanner-cli \
-                          -Dsonar.host.url=http://localhost:9000 \
+                          -Dsonar.host.url=http://sonarqube:9000 \
                           -Dsonar.token=$SONAR_TOKEN
                     '''
                 }
             }
         }
+
+        stage('5. Build final image') {
+            steps {
+                sh 'docker build --target runner -t nodejs-backend:${BUILD_NUMBER} .'
+            }
+        }
     }
 
     post {
-        success{
-            echo "Pipeline executed successfully!"
-        }
-        failure{
-            echo "The pipeline has failed."
-        }
+        success { echo "Pipeline completed successfully!" }
+        failure { echo "The pipeline has failed." }
     }
 }
