@@ -47,15 +47,6 @@ pipeline{
                 }
             }
         }
-        stage('Debug') {
-            steps {
-                sh '''
-                    git log -1 --oneline
-                    grep -n "test:cov" package.json || echo "test:cov NOT in package.json"
-                    ls -la
-                '''
-            }
-        }
     }
 
     post {
