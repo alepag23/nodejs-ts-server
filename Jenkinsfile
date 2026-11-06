@@ -32,6 +32,21 @@ pipeline{
                 '''
            }
         }
+        stage('4. SonarQube Analysis') {
+            steps {
+                // Let's securely retrieve the previously saved token
+                withCredentials([string(credentialsId: 'sonarqube-token', variable: 'SONAR_TOKEN')]) {
+                    sh '''
+                        docker run --rm \
+                          --network host \
+                          -v "$(pwd)":/usr/src \
+                          sonarsource/sonar-scanner-cli \
+                          -Dsonar.host.url=http://localhost:9000 \
+                          -Dsonar.token=$SONAR_TOKEN
+                    '''
+                }
+            }
+        }
     }
 
     post {
