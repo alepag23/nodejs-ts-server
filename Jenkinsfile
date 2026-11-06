@@ -3,16 +3,22 @@ pipeline{
 
     stages{
         stage('1. Checkout Code') {
-        // Jenkins clones/downloads the updated code from your repository
-        checkout scm
+            steps{
+                // Jenkins clones/downloads the updated code from your repository
+                checkout scm
+            }
         }
         stage('2. Installing Dependencies'){
-            // Enable Corepack and install packages using pnpm
-            sh 'corepack enable && pnpm install --frozen-lockfile'
+            steps{
+                // Enable Corepack and install packages using pnpm
+                sh 'corepack enable && pnpm install --frozen-lockfile'
+            }
         }
         stage('3. Test Execution and Coverage'){
-            // Runs tests using Vitest and generates the code coverage we saw earlier
-            sh 'pnpm test:cov' 
+           steps{
+                // Runs tests using Vitest and generates the code coverage we saw earlier
+                sh 'pnpm test:cov' 
+           }
         }
     }
 
