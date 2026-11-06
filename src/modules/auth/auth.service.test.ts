@@ -1,11 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import * as authService from './auth.service.ts';
-import * as usersModule from '../users/index.ts';
+import * as usersRepository from '../users/users.repository.ts';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
-// Mock of the three external dependencies of the service:
-vi.mock('../users/index.ts');   // the facade from which findByEmailWithHash originates
+// Mock the repository and external libraries, but keep the real user mapper.
+vi.mock('../users/users.repository.ts');
 vi.mock('bcrypt');              // external library
 vi.mock('jsonwebtoken');        // external library
 
@@ -26,8 +26,8 @@ describe('login', () => {
     };
 
     it('returns a token and user when the credentials are correct', async () => {
-        vi.mocked(usersModule.findByEmailWithHash).mockResolvedValue(fakeUser);
-        vi.mocked(usersModule.findById).mockResolvedValue({
+        vi.mocked(usersRepository.findByEmailWithHash).mockResolvedValue(fakeUser);
+        vi.mocked(usersRepository.findById).mockResolvedValue({
             id: 2,
             email: 'test@test.com',
             name: 'Test',
@@ -53,7 +53,7 @@ describe('login', () => {
     });
 
     it(' UnauthorizedError if email not exists', async () => {
-        vi.mocked(usersModule.findByEmailWithHash).mockResolvedValue(null);
+        vi.mocked(usersRepository.findByEmailWithHash).mockResolvedValue(null);
 
         await expect(
             authService.login({ email: 'nothing@test.com', password: 'supersecret' }),
@@ -61,7 +61,7 @@ describe('login', () => {
     });
 
     it('throw UnauthorizedError if password invalid', async () => {
-        vi.mocked(usersModule.findByEmailWithHash).mockResolvedValue(fakeUser);
+        vi.mocked(usersRepository.findByEmailWithHash).mockResolvedValue(fakeUser);
         vi.mocked(bcrypt.compare).mockResolvedValue(false as never);
 
         await expect(

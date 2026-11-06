@@ -8,6 +8,7 @@
     "start": "node --env-file=.env src/server.ts",
     "test": "vitest",
     "test:run": "vitest run",
+    "test:cov": "vitest run --coverage",
     "build": "tsc"
   },
   "keywords": [],
@@ -42,6 +43,7 @@
     "@types/supertest": "^7.2.1",
     "@types/swagger-jsdoc": "^6.0.4",
     "@types/swagger-ui-express": "^4.1.8",
+    "@vitest/coverage-v8": "4.1.10",
     "supertest": "^7.2.2",
     "typescript": "^7.0.2",
     "vitest": "^4.1.10"

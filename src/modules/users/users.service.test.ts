@@ -39,6 +39,7 @@ describe('getUserById', () => {
 describe('createUser', () => {
     beforeEach(() => {
         vi.clearAllMocks();
+        process.env.JWT_SECRET = 'test-secret';
     });
 
     it('create user when data is valid and email is free', async () => {

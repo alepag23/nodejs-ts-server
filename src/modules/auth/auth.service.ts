@@ -1,11 +1,11 @@
 import type { LoginDto, RegisterDto } from "./auth.dto.ts";
-import { findByEmailWithHash, findById, userMapperDto } from "../users/index.ts";
+import { findByEmailWithHash, findById, insert, emailExists } from "../users/users.repository.ts";
+import { userMapperDto } from "../users/users.mapper.ts";
 import { ConflictError, NotFoundError, UnauthorizedError, ValidationError } from "../../shared/errors/errors.ts";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import type { PublicUserEntity, UserEntity } from "../users/user.entity.ts";
 import type { UserResponseDto } from "../users/users.dto.ts";
-import { insert, emailExists } from "../users/index.ts";
 
 export async function login(dto: LoginDto): Promise<{ token: string, user: UserResponseDto }> {
     // 1. Check email 
