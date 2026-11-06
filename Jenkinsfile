@@ -10,24 +10,36 @@ pipeline{
         }
         stage('2. Installing Dependencies'){
             steps{
-                // Enable Corepack and install packages using pnpm
-                sh 'corepack enable && pnpm install --frozen-lockfile'
+                // run pnpm install inside a temporary Node 22 container
+                sh '''
+                    docker run --rm \
+                      -v "$(pwd)":/app \
+                      -w /app \
+                      node:22-alpine \
+                      sh -c "corepack enable && pnpm install --frozen-lockfile"
+                '''
             }
         }
         stage('3. Test Execution and Coverage'){
            steps{
-                // Runs tests using Vitest and generates the code coverage we saw earlier
-                sh 'pnpm test:cov' 
+                // run the tests inside the isolated Node container.
+                sh '''
+                    docker run --rm \
+                      -v "$(pwd)":/app \
+                      -w /app \
+                      node:22-alpine \
+                      sh -c "corepack enable && pnpm test:cov"
+                '''
            }
         }
     }
 
     post {
         success{
-            echo "The first three steps of the pipeline have been successfully completed."
+            echo "Pipeline executed successfully!"
         }
         failure{
-            echo "Oops, something went wrong during one of the steps."
+            echo "The pipeline has failed."
         }
     }
 }
